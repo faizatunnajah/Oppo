@@ -31,209 +31,43 @@ footer{font-size:12px;color:var(--muted);padding:8px}
 <footer>Prototype courseware: reading for specific information, listening-style clue work, questioning, evidence recording, inference and written justification.</footer>
 </div>
 <script>
-const S={score:0,episode:0,evidence:[],done:new Set(),wrong:0,answers:0,missions:0};
+const S={score:0,episode:0,evidence:[],done:new Set(),wrong:0};
 const $=id=>document.getElementById(id), screen=$('screen');
-function save(){localStorage.setItem('duckScore',S.score);$('score').textContent=S.score;$('ev').textContent=S.evidence.length;$('rank').textContent=S.score>=300?'Chief Detective':S.score>=210?'Master Detective':S.score>=120?'Senior Detective':'Rookie';$('bar').style.width=Math.min(100,S.score/340*100)+'%'}
-function add(n){S.score+=n;S.answers++;save()}
+function save(){localStorage.setItem('duckScore',S.score);$('score').textContent=S.score;$('ev').textContent=S.evidence.length;$('rank').textContent=S.score>=160?'Chief Detective':S.score>=110?'Master Detective':S.score>=60?'Senior Detective':'Rookie';$('bar').style.width=Math.min(100,S.score/180*100)+'%'}
+function add(n){S.score+=n;save()}
 function head(k,t,d=''){return `<div class="card"><div class="small">${k}</div><h2>${t}</h2>${d?`<p class="sub">${d}</p>`:''}</div>`}
 function feedback(ok,text){return `<div class="feedback ${ok?'ok':'no'}">${ok?'✅':'❌'} ${text}</div>`}
-function nextBtn(label,fn){return `<button class="btn primary" onclick="${fn}">${label}</button>`}
-function start(){
- screen.innerHTML=head('QUACKFORD CYBER-AGENCY','🦆 Detective Duck: Mystery in Quackford City','A complete Year 3 English detective campaign. Read carefully, listen for details, ask useful questions, organise evidence and explain your thinking.');
- screen.innerHTML+=`
- <div class="card"><h3>🎯 Your Detective Training</h3>
- <div class="grid">
- <div class="evidence">📖 <b>Reading</b><br>Find specific information and important details.</div>
- <div class="evidence">👂 <b>Listening</b><br>Identify key facts from witness messages.</div>
- <div class="evidence">💬 <b>Speaking</b><br>Ask questions and discuss evidence.</div>
- <div class="evidence">✍️ <b>Writing</b><br>Give conclusions with supporting reasons.</div>
- <div class="evidence">🧠 <b>Thinking</b><br>Connect clues from different sources.</div>
- <div class="evidence">🤝 <b>Teamwork</b><br>Check ideas before making a decision.</div>
- </div>
- <p><b>Campaign:</b> 5 cases • 15+ reading clues • 2 witness interviews • 3 locks • 1 final report</p>
- ${nextBtn('Begin Investigation →','briefing')}</div>`;
-}
-function briefing(){
- screen.innerHTML=head('MISSION BRIEFING','📡 Message from Detective Duck','The Word Thief is changing important information around Quackford City. The Golden Feather has disappeared, and several witnesses have seen a suspicious person.');
- screen.innerHTML+=`<div class="card"><div class="notice"><b>DETECTIVE DUCK:</b><br><br>
- “Junior Detectives, this case will not be solved by guessing. Read every clue. Check details. Ask questions. When you think you know the answer, prove it with evidence.”</div>
- <h3>🗺️ Choose your first investigation</h3>
- <div class="grid">
- <button class="btn" onclick="museum()">🏛️ Museum — Missing Feather</button>
- <button class="btn" onclick="library()">📚 Library — The Changed Notice</button>
- <button class="btn" onclick="park()">🌳 Park — The Blue Scarf</button>
- </div></div>`;
-}
-function museum(){
- S.episode=1;
- screen.innerHTML=head('CASE 1 • READING','🏛️ The Missing Golden Feather','Read the complete museum report. There are several clues hidden in the details.');
- screen.innerHTML+=`<div class="card"><div class="notice"><b>MUSEUM INCIDENT REPORT</b><br><br>
-The Golden Feather disappeared from the museum at <b>3 o'clock on Tuesday</b>. The museum guard was checking the west gallery when he heard a door close. A witness then saw a person wearing a <b>blue hat</b> near the <b>east door</b>. The person carried a <b>small black bag</b> and walked quickly towards the town square. The museum closed at 5 o'clock.</div>
-<h3>Clue 1 — When did the Golden Feather disappear?</h3>
-<div class="grid"><button class="btn" onclick="mc(this,'m1',false)">2 o'clock</button><button class="btn" onclick="mc(this,'m1',true)">3 o'clock</button><button class="btn" onclick="mc(this,'m1',false)">5 o'clock</button></div><div id="m1"></div></div>`;
-}
-function mc(b,id,ok){if(ok){b.classList.add('good');add(10);$(id).innerHTML=feedback(true,'Correct. You found a precise detail.');if(id==='m1')setTimeout(museum2,450);if(id==='l1')setTimeout(library2,450);if(id==='p1')setTimeout(park2,450)}else{b.classList.add('bad');$(id).innerHTML=feedback(false,'Read the text again. Look for the exact detail, not a guess.')}}
-function museum2(){
- screen.innerHTML=head('CASE 1 • READING','🔎 Evidence Scan','Which THREE details describe the suspicious person?');
- screen.innerHTML+=`<div class="card"><div class="evidence">The report says the person wore a blue hat, was near the east door and carried a small black bag.</div>
- <div class="grid"><button class="btn" onclick="toggle(this)">Blue hat</button><button class="btn" onclick="toggle(this)">East door</button><button class="btn" onclick="toggle(this)">Small black bag</button><button class="btn" onclick="toggle(this)">Tuesday</button><button class="btn" onclick="toggle(this)">5 o'clock closing time</button></div>
- <button class="btn primary" onclick="museum3()">Check Evidence</button><div id="m2"></div></div>`;
-}
-function toggle(b){b.classList.toggle('good')}
-function museum3(){
- let a=[...document.querySelectorAll('.good')].map(x=>x.textContent.trim());
- let target=['Blue hat','East door','Small black bag'];
- let ok=target.every(x=>a.includes(x))&&a.length===3;
- if(ok){add(20);S.evidence.push('3 o’clock','blue hat','east door','small black bag');$('m2').innerHTML=feedback(true,'Excellent. You separated suspect evidence from background information.');setTimeout(museum4,500)}
- else $('m2').innerHTML=feedback(false,'Select exactly three suspect details: the hat, the location and the bag.');
-}
-function museum4(){
- screen.innerHTML=head('CASE 1 • APPLY','🔐 Museum Lock','The museum computer needs a code made from the time and hat colour.');
- screen.innerHTML+=`<div class="card"><div class="evidence"><b>Time:</b> 3 o'clock<br><b>Hat:</b> blue</div>
- <input id="code" placeholder="BLUE3" maxlength="8"><button class="btn primary" style="margin-top:10px" onclick="museum5()">Unlock Evidence File</button><div id="m4"></div></div>`;
-}
-function museum5(){
- if($('code').value.trim().toUpperCase()==='BLUE3'){add(25);$('m4').innerHTML=feedback(true,'🔓 Evidence File A unlocked.');setTimeout(museum6,500)}
- else $('m4').innerHTML=feedback(false,'Combine BLUE + 3.');
-}
-function museum6(){
- screen.innerHTML=head('CASE 1 • HIGHER THINKING','🧠 Evidence Check','Which statement is supported by the museum report?');
- screen.innerHTML+=`<div class="card"><div class="grid">
- <button class="btn" onclick="choice(this,false)">The suspect definitely stole the feather.</button>
- <button class="btn" onclick="choice(this,true)">A witness saw a person matching several recorded details.</button>
- <button class="btn" onclick="choice(this,false)">The museum guard saw the person steal the feather.</button>
- </div><div id="mx"></div></div>`;
- function choice(b,ok){b.classList.add(ok?'good':'bad');if(ok){add(15);$('mx').innerHTML=feedback(true,'Good. The text gives evidence, but it does not prove every part of the story yet.');setTimeout(library,500)}else $('mx').innerHTML=feedback(false,'Be careful: separate what the text says from what you assume.')}
-}
-function library(){
- screen.innerHTML=head('CASE 2 • READING','📚 The Changed Library Notice','The Word Thief has changed a library notice. Find what is different.');
- screen.innerHTML+=`<div class="card"><div class="notice"><b>NEW LIBRARY NOTICE</b><br><br>
-The library is open from <b>8:30 a.m. to 4:30 p.m.</b> on weekdays. Pupils may borrow <b>two books</b> for one week. Please <b>walk quietly</b> and return books on Friday. The reading corner is beside the <b>large window</b>.</div>
-<h3>Clue 1 — How many books may a pupil borrow?</h3>
-<div class="grid"><button class="btn" onclick="mc(this,'l1',false)">One</button><button class="btn" onclick="mc(this,'l1',true)">Two</button><button class="btn" onclick="mc(this,'l1',false)">Three</button></div><div id="l1"></div></div>`;
-}
-function library2(){
- screen.innerHTML=head('CASE 2 • SPECIFIC INFORMATION','📖 Detail Detective','Select the details that can help you identify the changed notice.');
- screen.innerHTML+=`<div class="card"><div class="grid">
- <button class="btn" onclick="toggle(this)">Two books</button><button class="btn" onclick="toggle(this)">One week</button><button class="btn" onclick="toggle(this)">Friday</button><button class="btn" onclick="toggle(this)">Large window</button><button class="btn" onclick="toggle(this)">Pupils like stories</button></div>
- <button class="btn primary" onclick="library3()">Submit Details</button><div id="l2"></div></div>`;
-}
-function library3(){
- let a=[...document.querySelectorAll('.good')].map(x=>x.textContent.trim());
- let good=['Two books','One week','Friday','Large window'].every(x=>a.includes(x))&&a.length===4;
- if(good){add(20);$('l2').innerHTML=feedback(true,'Excellent scanning. You found four exact details.');setTimeout(library4,500)}
- else $('l2').innerHTML=feedback(false,'Find four factual details. Do not select the general statement about liking stories.');
-}
-function library4(){
- screen.innerHTML=head('CASE 2 • INFERENCE','🕵️ What Can You Infer?','Use the notice to make a careful inference.');
- screen.innerHTML+=`<div class="card"><p>If a pupil comes to the library at 5:00 p.m., what can you infer?</p><div class="grid">
- <button class="btn" onclick="inf(this,false)">The library is open.</button><button class="btn" onclick="inf(this,true)">The library is closed because the stated closing time is 4:30 p.m.</button><button class="btn" onclick="inf(this,false)">The pupil can borrow five books.</button></div><div id="li"></div></div>`;
- function inf(b,ok){b.classList.add(ok?'good':'bad');if(ok){add(20);$('li').innerHTML=feedback(true,'Strong inference: you connected two details from the notice.');setTimeout(library5,500)}else $('li').innerHTML=feedback(false,'Use the opening and closing times in the notice.')}
-}
-function library5(){
- screen.innerHTML=head('CASE 2 • WRITING','✍️ Mini Detective Note','Write one sentence telling a younger pupil an important library rule.');
- screen.innerHTML+=`<div class="card"><textarea id="ln" rows="3" placeholder="Remember to ..."></textarea><button class="btn primary" style="margin-top:10px" onclick="submitNote()">Submit Note</button><div id="lnf"></div></div>`;
-}
-function submitNote(){let t=$('ln').value.trim();if(t.length>=15&&/(quiet|book|return|library|walk)/i.test(t)){add(20);$('lnf').innerHTML=feedback(true,'Clear and relevant message. You used information from the text.');setTimeout(park,500)}else $('lnf').innerHTML=feedback(false,'Write a clear sentence using an important detail from the notice.')}
-function park(){
- screen.innerHTML=head('CASE 3 • LISTENING-STYLE CLUES','🌳 The Blue Scarf at Quackford Park','Read the witness message as if it were an audio clue. In the full version, this text can be replaced by a recorded voice.');
- screen.innerHTML+=`<div class="card"><div class="notice"><b>WITNESS MESSAGE</b><br><br>“I was walking beside the fountain at about <b>4:15</b>. I saw a <b>tall</b> person wearing a <b>blue scarf</b>. The person carried a <b>red bag</b> and walked towards the bakery. I could not see the person's face.”</div>
- <h3>Clue 1 — Where was the witness?</h3><div class="grid"><button class="btn" onclick="mc(this,'p1',false)">Near the museum</button><button class="btn" onclick="mc(this,'p1',true)">Beside the fountain</button><button class="btn" onclick="mc(this,'p1',false)">Inside the bakery</button></div><div id="p1"></div></div>`;
-}
-function park2(){
- screen.innerHTML=head('CASE 3 • LISTENING','👂 Catch the Details','Select ALL the details the witness gave about the person.');
- screen.innerHTML+=`<div class="card"><div class="grid"><button class="btn" onclick="toggle(this)">Tall</button><button class="btn" onclick="toggle(this)">Blue scarf</button><button class="btn" onclick="toggle(this)">Red bag</button><button class="btn" onclick="toggle(this)">Green shoes</button><button class="btn" onclick="toggle(this)">Long coat</button></div><button class="btn primary" onclick="park3()">Check Details</button><div id="p2"></div></div>`;
-}
-function park3(){
- let a=[...document.querySelectorAll('.good')].map(x=>x.textContent.trim()), target=['Tall','Blue scarf','Red bag'];
- if(target.every(x=>a.includes(x))&&a.length===3){add(25);S.evidence.push('tall','blue scarf','red bag');$('p2').innerHTML=feedback(true,'You captured three important witness details.');setTimeout(park4,500)}
- else $('p2').innerHTML=feedback(false,'The witness gave three details: height, scarf colour and bag colour.');
-}
-function park4(){
- screen.innerHTML=head('CASE 3 • QUESTIONING','💬 Build a Useful Question','You can ask one question. Which one would help identify the person?');
- screen.innerHTML+=`<div class="card"><div class="grid">
- <button class="btn" onclick="qGood(this,false)">What did you eat today?</button>
- <button class="btn" onclick="qGood(this,true)">What colour was the bag?</button>
- <button class="btn" onclick="qGood(this,false)">Do you like ducks?</button>
- <button class="btn" onclick="qGood(this,false)">Was the weather nice?</button></div><div id="pq"></div></div>`;
- function qGood(b,ok){b.classList.add(ok?'good':'bad');if(ok){add(20);$('pq').innerHTML=feedback(true,'Excellent. You selected a question that targets identifying information.');setTimeout(aiWitness,500)}else $('pq').innerHTML=feedback(false,'Choose a question about a feature of the suspect.')}
-}
-function aiWitness(){
- screen.innerHTML=head('CASE 4 • AI WITNESS','🦉 Interrogation Room: Barnaby','In the full courseware, this room links to Mizou. Here is the prototype conversation.');
- screen.innerHTML+=`<div class="card"><div class="evidence"><b>Barnaby:</b> “I saw the person near the bakery. The person was tall, wore a blue scarf and carried a red bag.”</div>
- <h3>Ask three useful questions</h3><div class="grid">
- <button class="btn" onclick="ask(this,'Where did you see the person?','bakery')">Where did you see the person?</button>
- <button class="btn" onclick="ask(this,'What colour was the bag?','red')">What colour was the bag?</button>
- <button class="btn" onclick="ask(this,'What was the person wearing?','blue')">What was the person wearing?</button>
- <button class="btn" onclick="ask(this,'How tall was the person?','tall')">How tall was the person?</button>
- </div><div id="chat"></div><div class="small">Questions answered: <b id="aq">0</b>/3</div></div>`;
-}
-let aq=0;
-function ask(b,q,key){if(b.classList.contains('good'))return;b.classList.add('good');aq++;let reply={bakery:'I saw the person near the bakery.',red:'The bag was red.',blue:'The person wore a blue scarf.',tall:'The person was tall.'}[key];$('chat').innerHTML+=`<div class="evidence" style="margin-top:8px"><b>You:</b> ${q}<br><b>Barnaby:</b> ${reply}</div>`;$('aq').textContent=aq;if(aq>=3){add(30);setTimeout(evidenceBoard,500)}}
-function evidenceBoard(){
- screen.innerHTML=head('CASE 4 • ORGANISE','🗂️ Master Evidence Board','Use information from the museum, park and Barnaby to build the strongest profile.');
- screen.innerHTML+=`<div class="card"><div class="grid">
- <div><label>Height</label><input id="bh" placeholder="tall / short"></div><div><label>Bag</label><input id="bb" placeholder="colour"></div>
- <div><label>Scarf</label><input id="bs" placeholder="colour"></div><div><label>Likely location</label><input id="bp" placeholder="place"></div></div>
- <button class="btn primary" style="margin-top:12px" onclick="verifyBoard()">Verify Evidence Board</button><div id="be"></div></div>`;
-}
-function verifyBoard(){
- let ok=$('bh').value.trim().toLowerCase()==='tall'&&$('bb').value.trim().toLowerCase()==='red'&&$('bs').value.trim().toLowerCase()==='blue'&&$('bp').value.trim().toLowerCase()==='bakery';
- if(ok){add(30);$('be').innerHTML=feedback(true,'Master evidence profile complete. Now solve the final case.');setTimeout(vault,500)}
- else $('be').innerHTML=feedback(false,'Check all four sources again: tall, red bag, blue scarf, bakery.')}
-function vault(){
- screen.innerHTML=head('CASE 5 • FINAL VAULT','🔐 The Word Thief’s Master Vault','The final code requires you to connect information across the case.');
- screen.innerHTML+=`<div class="card"><div class="notice"><b>FINAL REPORTS</b><br><br>
- Museum: The person had a <b>blue hat</b> and a <b>black bag</b> at 3 o'clock.<br>
- Park: The person was <b>tall</b>, wore a <b>blue scarf</b> and carried a <b>red bag</b>.<br>
- Bakery: A <b>tall</b> person with a <b>red bag</b> walked towards the library.<br><br>
- <b>Detective Duck:</b> “The details point to one suspect profile. But can you explain how you know?”</div>
- <h3>Which two clues connect most strongly?</h3><div class="grid">
- <button class="btn" onclick="vc(this,true)">Tall + red bag</button><button class="btn" onclick="vc(this,false)">Tuesday + Friday</button><button class="btn" onclick="vc(this,false)">Museum closing time + library window</button></div><div id="vf"></div></div>`;
- function vc(b,ok){b.classList.add(ok?'good':'bad');if(ok){add(25);$('vf').innerHTML=feedback(true,'Correct. The same suspect features appear in independent witness reports.');setTimeout(finalReason,500)}else $('vf').innerHTML=feedback(false,'Find the two details repeated across different witness reports.')}
-}
-function finalReason(){
- screen.innerHTML=head('FINAL PERFORMANCE • PL5/PL6','✍️ Chief Detective Report','Write a conclusion and support it with at least TWO pieces of evidence.');
- screen.innerHTML+=`<div class="card"><div class="evidence"><b>Suggested structure:</b><br>
- 1. I think the suspect is ...<br>
- 2. I know this because ...<br>
- 3. Clue A says ...<br>
- 4. Clue B also says ...</div>
- <textarea id="report" rows="8" placeholder="I think the suspect is ... because ..."></textarea>
- <button class="btn primary" style="margin-top:10px" onclick="finish()">Submit Chief Detective Report</button><div id="fr"></div></div>`;
-}
-function finish(){
- let t=$('report').value.trim(),l=t.toLowerCase(),evidenceCount=(l.match(/because|clue|evidence|says|saw|red bag|blue scarf|tall/g)||[]).length;
- if(t.length>=70&&/(because|clue|evidence|says)/.test(l)&&evidenceCount>=2){
-   add(60);$('fr').innerHTML=feedback(true,'Outstanding detective work. Your report contains a conclusion and supporting evidence.');setTimeout(finalQuiz,600);
- }else $('fr').innerHTML=feedback(false,'For PL5/PL6 evidence, write a complete conclusion and support it with at least TWO details from the case.');
-}
-function finalQuiz(){
- screen.innerHTML=head('FINAL CHECKPOINT','📝 Quackford Detective Assessment','A short independent check after the game.');
- screen.innerHTML+=`<div class="card"><h3>Question 1</h3><p>Which detail was found in more than one witness report?</p><div class="grid">
- <button class="btn" onclick="fq(this,false)">The library window</button><button class="btn" onclick="fq(this,true)">The red bag</button><button class="btn" onclick="fq(this,false)">Tuesday</button></div><div id="fq1"></div></div>`;
-}
-let quizScore=0;
-function fq(b,ok){b.classList.add(ok?'good':'bad');if(ok){quizScore++;add(15)}$('fq1').innerHTML=feedback(ok,ok?'Correct.':'Review the evidence board.');setTimeout(qz2,500)}
-function qz2(){
- screen.innerHTML=head('FINAL CHECKPOINT','Question 2','What is the best reason for checking more than one clue?');
- screen.innerHTML+=`<div class="card"><div class="grid"><button class="btn" onclick="qz2a(this,false)">It makes the game longer.</button><button class="btn" onclick="qz2a(this,true)">It helps us check whether different pieces of information support the same conclusion.</button><button class="btn" onclick="qz2a(this,false)">It means we never need to read carefully.</button></div><div id="qz"></div></div>`;
-}
-function qz2a(b,ok){b.classList.add(ok?'good':'bad');if(ok){quizScore++;add(15)}$('qz').innerHTML=feedback(ok,ok?'Correct. That is evidence checking.':'Think about why detectives compare sources.');setTimeout(qz3,500)}
-function qz3(){
- screen.innerHTML=head('FINAL CHECKPOINT','Question 3','Which sentence is the strongest detective response?');
- screen.innerHTML+=`<div class="card"><div class="grid"><button class="btn" onclick="qz3a(this,false)">I think it is him.</button><button class="btn" onclick="qz3a(this,true)">I think the suspect is tall because the park and bakery clues both describe a tall person with a red bag.</button><button class="btn" onclick="qz3a(this,false)">The suspect is tall.</button></div><div id="q3z"></div></div>`;
-}
-function qz3a(b,ok){b.classList.add(ok?'good':'bad');if(ok){quizScore++;add(15)}$('q3z').innerHTML=feedback(ok,ok?'Excellent. It gives a conclusion and evidence.':'Choose the answer that explains the conclusion with evidence.');setTimeout(result,700)}
-function result(){
- let rank=S.score>=300?'Chief Detective':S.score>=210?'Master Detective':S.score>=120?'Senior Detective':'Rookie';
- screen.innerHTML=head('CASE CLOSED','🏆 Quackford City is Safe!','The Word Thief has been identified through careful reading, questioning and evidence checking.');
- screen.innerHTML+=`<div class="card"><h3>Detective Performance</h3><div class="stats"><span class="pill">⭐ Score: <b>${S.score}</b></span><span class="pill">🏅 Rank: <b>${rank}</b></span><span class="pill">🔎 Evidence: <b>${S.evidence.length}</b></span><span class="pill">📝 Final Check: <b>${quizScore}/3</b></span></div>
- <div class="grid" style="margin-top:14px"><div class="evidence"><b>Reading</b><br>Specific details, multiple texts, evidence selection.</div><div class="evidence"><b>Listening</b><br>Witness detail extraction.</div><div class="evidence"><b>Speaking</b><br>Useful questions and interrogation.</div><div class="evidence"><b>Writing</b><br>Conclusion + evidence.</div></div>
- <h3 style="margin-top:18px">👩‍🏫 Teacher Evidence</h3><ul><li>Finds specific information in short texts.</li><li>Identifies relevant details from witness reports.</li><li>Uses/recognises WH-type questions.</li><li>Records multiple details accurately.</li><li>Connects evidence from different sources.</li><li>Explains a conclusion using supporting details.</li></ul>
- <h3>Suggested PL5/PL6 Evidence</h3><p><b>PL5:</b> Selects and combines relevant information to solve the case and gives a supported response.</p><p><b>PL6:</b> Independently connects information from several clues and gives a clear conclusion with relevant justification.</p>
- <button class="btn primary" onclick="location.reload()">Restart Full Campaign</button></div>`;
-}
+function start(){screen.innerHTML=head('MISSION BRIEFING','The Word Thief has struck!','A Golden Feather has disappeared from Quackford Museum. Three witnesses left clues. Your job is to read, listen, question and explain.');screen.innerHTML+=`
+<div class="card"><h3>Your Detective Rules</h3><div class="grid"><div class="evidence">🔎 <b>Find details</b><br>Look for who, what, where, when and descriptions.</div><div class="evidence">💬 <b>Ask useful questions</b><br>Do not guess when you can investigate.</div><div class="evidence">🧠 <b>Connect clues</b><br>Use more than one piece of evidence.</div><div class="evidence">✍️ <b>Explain</b><br>Give an answer and a reason.</div></div><button class="btn primary" onclick="episode1()">Start Case 1 →</button></div>`}
+function episode1(){S.episode=1;screen.innerHTML=head('EPISODE 1 • READ','🏛️ Case of the Missing Golden Feather','Read the museum notice carefully. The exact details open the first lock.');
+screen.innerHTML+=`<div class="card"><div class="notice"><b>MUSEUM NOTICE</b><br><br>The Golden Feather disappeared from the museum at <b>3 o'clock</b> on Tuesday. A witness saw a person wearing a <b>blue hat</b> near the <b>east door</b>. The person carried a <b>small black bag</b> and left quickly before the museum closed.</div>
+<h3>Clue 1 — When did the feather disappear?</h3><div class="grid" id="q1"><button class="btn" onclick="q1(this,'2')">2 o'clock</button><button class="btn" onclick="q1(this,'3')">3 o'clock</button><button class="btn" onclick="q1(this,'5')">5 o'clock</button></div><div id="f1"></div></div>`}
+function q1(b,a){if(S.done.has('q1'))return;S.done.add('q1');let ok=a==='3';b.classList.add(ok?'good':'bad');if(ok){add(15);S.evidence.push('3 o’clock');$('f1').innerHTML=feedback(true,'Correct. Time is a specific detail.');setTimeout(q1b,500)}else{$('f1').innerHTML=feedback(false,'Read the first sentence again. Find the exact time.')}} 
+function q1b(){screen.innerHTML=head('EPISODE 1 • READ','Clue 2 — Find two suspect details','Use the notice, not a guess.');
+screen.innerHTML+=`<div class="card"><div class="evidence">Evidence already found: <b>3 o'clock</b></div><p><b>Select BOTH details that help identify the person.</b></p><div class="grid"><button class="btn" data-x="blue hat" onclick="toggle(this)">Blue hat</button><button class="btn" data-x="east door" onclick="toggle(this)">East door</button><button class="btn" data-x="black bag" onclick="toggle(this)">Small black bag</button><button class="btn" data-x="Tuesday" onclick="toggle(this)">Tuesday</button></div><button class="btn primary" onclick="checkQ2()">Check evidence</button><div id="f2"></div></div>`}
+function toggle(b){b.classList.toggle('good');}
+function checkQ2(){let chosen=[...document.querySelectorAll('[data-x].good')].map(x=>x.dataset.x);let good=chosen.length===2&&chosen.includes('blue hat')&&chosen.includes('black bag');if(good){add(20);S.evidence.push('blue hat','small black bag');$('f2').innerHTML=feedback(true,'Excellent. You selected two identifying details. Now crack the lock.');setTimeout(lock,500)}else{$('f2').innerHTML=feedback(false,'Choose the two details that describe the suspect, not the date or location.')}}
+function lock(){screen.innerHTML=head('EPISODE 1 • APPLY','🔐 Digital Evidence Lock','Combine the suspect details. Enter the passcode in the correct order.');screen.innerHTML+=`<div class="card"><div class="evidence">Hat = <b>BLUE</b> • Time = <b>3</b></div><label>Passcode</label><input id="code" placeholder="Example: BLUE3" maxlength="8"><button class="btn primary" style="margin-top:10px" onclick="unlock()">Unlock Vault</button><div id="fl"></div></div>`}
+function unlock(){let v=$('code').value.trim().toUpperCase();if(v==='BLUE3'){add(25);$('fl').innerHTML=feedback(true,'Vault unlocked! You recovered a witness file.');setTimeout(episode2,600)}else $('fl').innerHTML=feedback(false,'Use the hat colour followed by the time: BLUE + 3.')}
+function episode2(){S.episode=2;screen.innerHTML=head('EPISODE 2 • LISTEN & SPEAK','🦉 Interrogation: Barnaby the Owl','Barnaby knows more. Read his first statement, then choose questions that would help a detective.');
+screen.innerHTML+=`<div class="card"><div class="evidence"><b>Barnaby says:</b><br>“I saw a tall person near the bakery. The person had a red bag and a blue scarf. I noticed the person at about four o'clock.”</div><h3>Which question is most useful if you need the suspect's location?</h3><div class="grid"><button class="btn" onclick="q3(this,false)">What is your favourite food?</button><button class="btn" onclick="q3(this,true)">Where did you see the person?</button><button class="btn" onclick="q3(this,false)">Do you like museums?</button></div><div id="f3"></div></div>`}
+function q3(b,ok){if(ok){add(15);b.classList.add('good');$('f3').innerHTML=feedback(true,'Good detective question. It asks for a specific place.');setTimeout(q4,500)}else{b.classList.add('bad');$('f3').innerHTML=feedback(false,'Choose a question that can reveal a location.')}} 
+function q4(){screen.innerHTML=head('EPISODE 2 • LISTEN & SPEAK','Clue 2 — Ask about the object','Imagine Barnaby answers your question.');screen.innerHTML+=`<div class="card"><p><b>Ask:</b> “What colour was the bag?”</p><div class="evidence">🦉 Barnaby: “The bag was <b>red</b>.”</div><div class="grid"><button class="btn" onclick="q4a(this,'red')">Red</button><button class="btn" onclick="q4a(this,'blue')">Blue</button><button class="btn" onclick="q4a(this,'black')">Black</button></div><div id="f4"></div></div>`}
+function q4a(b,a){if(a==='red'){add(15);b.classList.add('good');S.evidence.push('red bag');$('f4').innerHTML=feedback(true,'Correct. You extracted the witness detail.');setTimeout(board,500)}else{$('f4').innerHTML=feedback(false,'Barnaby said the bag was red.')}} 
+function board(){screen.innerHTML=head('EPISODE 2 • ORGANISE','🗂️ Evidence Board','Record the witness information. This is your case file.');
+screen.innerHTML+=`<div class="card"><div class="grid"><div><label>Height</label><input id="h" placeholder="e.g. tall"></div><div><label>Location</label><input id="p" placeholder="e.g. bakery"></div><div><label>Bag colour</label><input id="b" placeholder="e.g. red"></div><div><label>Scarf colour</label><input id="s" placeholder="e.g. blue"></div></div><button class="btn primary" style="margin-top:12px" onclick="checkBoard()">Verify Case File</button><div id="fb"></div></div>`}
+function checkBoard(){let h=$('h').value.trim().toLowerCase(),p=$('p').value.trim().toLowerCase(),b=$('b').value.trim().toLowerCase(),s=$('s').value.trim().toLowerCase();if(h==='tall'&&p==='bakery'&&b==='red'&&s==='blue'){add(25);$('fb').innerHTML=feedback(true,'Case file complete. You are ready to compare clues.');setTimeout(episode3,600)}else $('fb').innerHTML=feedback(false,'Check Barnaby’s statement. Four details are needed: height, location, bag colour and scarf colour.')}
+function episode3(){S.episode=3;screen.innerHTML=head('EPISODE 3 • READ, CONNECT & THINK','🔎 The Three-Clue Showdown','Three short texts contain related information. Read all three before deciding.');
+screen.innerHTML+=`<div class="grid">
+<div class="card"><h3>Clue A — Museum Guard</h3><div class="notice">“At 3 o'clock, I saw a person with a blue hat leave the museum. The person carried a small black bag.”</div></div>
+<div class="card"><h3>Clue B — Bakery Owner</h3><div class="notice">“A tall person with a red bag stopped near my bakery. The person wore a blue scarf and left at about four o'clock.”</div></div>
+<div class="card"><h3>Clue C — Library Helper</h3><div class="notice">“I saw a tall person walk from the bakery towards the library. The person carried a red bag.”</div></div></div>
+<div class="card"><h3>Clue 1 — Which suspect profile matches the clues?</h3><div class="grid"><button class="btn" onclick="finalChoice(this,false)">Short, green hat, yellow bag</button><button class="btn" onclick="finalChoice(this,true)">Tall, blue scarf, red bag</button><button class="btn" onclick="finalChoice(this,false)">Tall, red hat, black bag</button></div><div id="ff"></div></div>`}
+function finalChoice(b,ok){if(ok){add(30);b.classList.add('good');$('ff').innerHTML=feedback(true,'Strong evidence matching. Now explain your reasoning.');setTimeout(finalWrite,500)}else{$('ff').innerHTML=feedback(false,'Compare the height, scarf and bag details across the clues.')}}
+function finalWrite(){screen.innerHTML=head('FINAL CASE • PL5/PL6','✍️ Write the Detective Report','A strong detective gives a conclusion AND evidence.');
+screen.innerHTML+=`<div class="card"><div class="evidence"><b>Use at least two clues.</b><br>Helpful starters: “I think the suspect is…” • “I know this because…” • “Clue B says…”</div><textarea id="report" rows="6" placeholder="I think the suspect is ... because ..."></textarea><button class="btn primary" style="margin-top:10px" onclick="finish()">Submit Final Report</button><div id="fr"></div></div>`}
+function finish(){let t=$('report').value.trim(),lower=t.toLowerCase(),hasConclusion=/(tall|suspect|person)/.test(lower),hasReason=/(because|clue|evidence|says|saw|red bag|blue scarf)/.test(lower),long=t.length>=45;if(hasConclusion&&hasReason&&long){add(50);$('fr').innerHTML=feedback(true,'Case solved! You gave a conclusion and supported it with evidence.');setTimeout(result,700)}else{$('fr').innerHTML=feedback(false,'Make your explanation stronger: name the suspect/profile and give evidence using “because”, “clue”, or a detail from the texts.')}}
+function result(){screen.innerHTML=head('CASE CLOSED','🏆 Quackford City is safe!','You read, questioned, organised and explained.');screen.innerHTML+=`<div class="card"><h3>Detective Report</h3><div class="stats"><span class="pill">⭐ Score: <b>${S.score}</b></span><span class="pill">🏅 Rank: <b>${S.score>=160?'Chief Detective':S.score>=110?'Master Detective':'Senior Detective'}</b></span><span class="pill">🔎 Evidence: <b>${S.evidence.length}</b></span></div><div class="evidence" style="margin-top:14px"><b>Teacher evidence to observe</b><br>• Finds specific information in short texts<br>• Selects relevant clues<br>• Asks/chooses useful questions<br>• Records multiple details accurately<br>• Connects information from different clues<br>• Gives a conclusion with a reason</div><button class="btn primary" style="margin-top:12px" onclick="location.reload()">Play Again</button></div>`}
 start();save();
 </script>
 </body>
